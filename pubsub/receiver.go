@@ -10,6 +10,7 @@ import (
 	pubsubevent "github.com/cloudevents/sdk-go/pkg/cloudevents/transport/pubsub"
 	ptypes "github.com/golang/protobuf/ptypes"
 	empty "github.com/golang/protobuf/ptypes/empty"
+	"github.com/phogolabs/plex"
 	v1 "google.golang.org/genproto/googleapis/pubsub/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -45,6 +46,14 @@ type Receiver struct {
 	Codec *pubsubevent.Codec
 	// Handler handles the event
 	Handler EventHandler
+}
+
+// Mount mounts the receiver to the server
+func (r *Receiver) Mount(server *plex.Server) {
+	// register grpc
+	server.Socket().Register(RegisterReceiverHandlerServer, r)
+	// register http
+	server.Mux().Register(RegisterReceiverHandlerServer, r)
 }
 
 // Receive receives the pubsub message

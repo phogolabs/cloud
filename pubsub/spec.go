@@ -10,3 +10,4 @@ package pubsub
 
 // genarate boilerplate code
 //go:generate protoc -I . --go_out=plugins=grpc:$GOPATH/src/. spec.proto
+//go:generate protoc -I . --grpc-gateway_out=logtostderr=true:$GOPATH/src/. spec.proto

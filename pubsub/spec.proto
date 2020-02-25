@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package phogolabs.cloud.pubsub;
 
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "google/pubsub/v1/pubsub.proto";
 
 option go_package = "github.com/phogolabs/cloud/pubsub;pubsub";
@@ -35,4 +37,15 @@ message ReceivedMessage {
   // Required. The name of the subscription.
   // Format is `projects/{project}/subscriptions/{sub}`.
   string subscription = 4;
+}
+
+// Receiver receives a users from pubsub queue
+service Receiver {
+  // Receive receives a pub-sub message
+  rpc Receive(ReceivedMessage) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/queues/*"
+      body: "*"
+    };
+  }
 }
