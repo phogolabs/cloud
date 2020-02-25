@@ -10,6 +10,7 @@ import (
 	pubsubevent "github.com/cloudevents/sdk-go/pkg/cloudevents/transport/pubsub"
 	ptypes "github.com/golang/protobuf/ptypes"
 	empty "github.com/golang/protobuf/ptypes/empty"
+	"github.com/phogolabs/log"
 	"github.com/phogolabs/plex"
 	v1 "google.golang.org/genproto/googleapis/pubsub/v1"
 	grpc "google.golang.org/grpc"
@@ -58,10 +59,13 @@ func (r *Receiver) Mount(server *plex.Server) {
 
 // Receive receives the pubsub message
 func (r *Receiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empty.Empty, error) {
-	none := &empty.Empty{}
+	var (
+		none   = &empty.Empty{}
+		logger = log.GetContext(ctx)
+	)
 
 	if payload.Message == nil {
-		return none, status.Error(codes.InvalidArgument, "message cannot be nil")
+		return none, status.Error(codes.InvalidArgument, "validation fail")
 	}
 
 	if r.Codec == nil {
@@ -87,14 +91,21 @@ func (r *Receiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empt
 	)
 
 	if err != nil {
-		return none, err
+		return none, status.Error(codes.InvalidArgument, "validation fail")
 	}
+
+	logger = logger.WithFields(log.Map{
+		"event_id":     event.ID(),
+		"event_type":   event.Type(),
+		"event_source": event.Source(),
+	})
 
 	if err := event.Validate(); err != nil {
 		err = status.Error(codes.InvalidArgument, err.Error())
 		return none, err
 	}
 
+	ctx = log.SetContext(ctx, logger)
 	ctx = r.context(ctx, payload)
 
 	if err := r.Handler.Handle(ctx, event); err != nil {
