@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	pubsubevent "github.com/cloudevents/sdk-go/pkg/cloudevents/transport/pubsub"
-	cloud "gitlab.com/octabox/contacts-api/cloud"
-	pubsub "gitlab.com/octabox/contacts-api/cloud/pubsub"
+	cloud "github.com/phogolabs/cloud"
+	pubsub "github.com/phogolabs/cloud/pubsub"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

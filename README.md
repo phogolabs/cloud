@@ -6,7 +6,7 @@
 [![Coverage][codecov-img]][codecov-url]
 [![Go Report Card][report-img]][report-url]
 
-Cloud package enables cloudevents.io for server less
+Cloud package enables [cloudevents.io](https://cloudevents.io) for server less
 
 ## Installation
 

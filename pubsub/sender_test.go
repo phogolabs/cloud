@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"cloud.google.com/go/pubsub/pstest"
-	"gitlab.com/phogolabs/cloud"
-	"gitlab.com/phogolabs/cloud/pubsub"
+	"github.com/phogolabs/cloud"
+	"github.com/phogolabs/cloud/pubsub"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 

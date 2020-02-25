@@ -1,7 +1,6 @@
 package cloud_test
 
 import (
-	"context"
 	"testing"
 
 	. "github.com/onsi/ginkgo"

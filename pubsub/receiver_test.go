@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"gitlab.com/phogolabs/cloud"
-	"gitlab.com/phogolabs/cloud/fake"
-	"gitlab.com/phogolabs/cloud/pubsub"
+	"github.com/phogolabs/cloud"
+	"github.com/phogolabs/cloud/fake"
+	"github.com/phogolabs/cloud/pubsub"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -10,7 +10,7 @@ import (
 	pubsubevent "github.com/cloudevents/sdk-go/pkg/cloudevents/transport/pubsub"
 	ptypes "github.com/golang/protobuf/ptypes"
 	empty "github.com/golang/protobuf/ptypes/empty"
-	proto "gitlab.com/octabox/contacts-api/cloud/pubsub/proto"
+	proto "github.com/phogolabs/cloud/pubsub/proto"
 	v1 "google.golang.org/genproto/googleapis/pubsub/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
