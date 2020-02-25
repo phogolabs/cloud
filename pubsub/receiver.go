@@ -51,7 +51,7 @@ type Receiver struct {
 // Mount mounts the receiver to the server
 func (r *Receiver) Mount(server *plex.Server) {
 	// register grpc
-	server.Socket().Register(RegisterReceiverHandlerServer, r)
+	server.Socket().Register(RegisterReceiverServer, r)
 	// register http
 	server.Mux().Register(RegisterReceiverHandlerServer, r)
 }
