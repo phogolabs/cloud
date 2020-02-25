@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package cliche.cloud.pubsub.proto;
+package phogolabs.cloud.pubsub.proto;
 
 import "google/pubsub/v1/pubsub.proto";
 
