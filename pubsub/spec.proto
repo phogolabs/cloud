@@ -44,7 +44,7 @@ service Receiver {
   // Receive receives a pub-sub message
   rpc Receive(ReceivedMessage) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/queues/*"
+      post: "/topics/*"
       body: "*"
     };
   }

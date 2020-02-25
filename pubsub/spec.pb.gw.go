@@ -155,7 +155,7 @@ func RegisterReceiverHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 }
 
 var (
-	pattern_Receiver_Receive_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0}, []string{"queues"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Receiver_Receive_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0}, []string{"topics"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

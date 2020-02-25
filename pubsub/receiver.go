@@ -21,15 +21,7 @@ import (
 type (
 	// Event represents the canonical representation of a CloudEvent.
 	Event = cloudevents.Event
-)
 
-// EventHandler handles cloud events
-type EventHandler interface {
-	// Handle handles cloud events
-	Handle(ctx context.Context, event *Event) error
-}
-
-type (
 	// Message that is published by publishers and consumed by subscribers. The
 	// message must contain either a non-empty data field or at least one attribute.
 	// Note that client libraries represent this object differently
@@ -40,6 +32,12 @@ type (
 	// for more information about message limits.
 	Message = v1.PubsubMessage
 )
+
+// EventHandler handles cloud events
+type EventHandler interface {
+	// Handle handles cloud events
+	Handle(ctx context.Context, event *Event) error
+}
 
 // Receiver receives a pub sub message
 type Receiver struct {
