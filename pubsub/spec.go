@@ -1,4 +1,4 @@
-package proto
+package pubsub
 
 // download depencies
 //go:generate go-getter https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/annotations.proto ./google/api
@@ -9,4 +9,4 @@ package proto
 //go:generate go-getter https://raw.githubusercontent.com/googleapis/googleapis/master/google/pubsub/v1/pubsub.proto ./google/pubsub/v1
 
 // genarate boilerplate code
-//go:generate protoc -I . --go_out=plugins=grpc:. pubsub.proto
+//go:generate protoc -I . --go_out=plugins=grpc:$GOPATH/src/. spec.proto

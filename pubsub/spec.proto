@@ -4,7 +4,7 @@ package phogolabs.cloud.pubsub;
 
 import "google/pubsub/v1/pubsub.proto";
 
-option go_package = "proto";
+option go_package = "github.com/phogolabs/cloud/pubsub;pubsub";
 
 // ReceivedMessage and its corresponding acknowledgment ID.
 message ReceivedMessage {

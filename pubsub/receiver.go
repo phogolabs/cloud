@@ -10,7 +10,6 @@ import (
 	pubsubevent "github.com/cloudevents/sdk-go/pkg/cloudevents/transport/pubsub"
 	ptypes "github.com/golang/protobuf/ptypes"
 	empty "github.com/golang/protobuf/ptypes/empty"
-	proto "github.com/phogolabs/cloud/pubsub/proto"
 	v1 "google.golang.org/genproto/googleapis/pubsub/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -29,10 +28,6 @@ type EventHandler interface {
 }
 
 type (
-	// ReceivedMessage is received message and its corresponding
-	// acknowledgment ID.
-	ReceivedMessage = proto.ReceivedMessage
-
 	// Message that is published by publishers and consumed by subscribers. The
 	// message must contain either a non-empty data field or at least one attribute.
 	// Note that client libraries represent this object differently
