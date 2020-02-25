@@ -63,7 +63,9 @@ func (r *Receiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empt
 	)
 
 	if payload.Message == nil {
-		return none, status.Error(codes.InvalidArgument, "validation fail")
+		err := status.Error(codes.InvalidArgument, "event body not provided")
+		logger.WithError(err).Info("event validation fail")
+		return none, err
 	}
 
 	if r.Codec == nil {
@@ -89,7 +91,9 @@ func (r *Receiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empt
 	)
 
 	if err != nil {
-		return none, status.Error(codes.InvalidArgument, "validation fail")
+		err = status.Error(codes.InvalidArgument, err.Error())
+		logger.WithError(err).Info("event decoding fail")
+		return none, err
 	}
 
 	logger = logger.WithFields(log.Map{
@@ -100,16 +104,21 @@ func (r *Receiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empt
 
 	if err := event.Validate(); err != nil {
 		err = status.Error(codes.InvalidArgument, err.Error())
+		logger.WithError(err).Info("event validation fail")
 		return none, err
 	}
 
 	ctx = log.SetContext(ctx, logger)
 	ctx = r.context(ctx, payload)
 
+	logger.Info("handling event start")
+
 	if err := r.Handler.Handle(ctx, event); err != nil {
 		if _, ok := status.FromError(err); !ok {
 			err = status.Error(codes.Internal, err.Error())
 		}
+
+		logger.WithError(err).Info("event handling fail")
 		return none, err
 	}
 
