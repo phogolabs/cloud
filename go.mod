@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go v0.40.0
 	github.com/cloudevents/sdk-go v1.0.0
 	github.com/golang/protobuf v1.3.2
+	github.com/google/uuid v1.1.1
 	github.com/grpc-ecosystem/grpc-gateway v1.12.2
 	github.com/onsi/ginkgo v1.12.0
 	github.com/onsi/gomega v1.9.0

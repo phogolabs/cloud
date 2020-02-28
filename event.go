@@ -5,6 +5,7 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go"
 	cloudtypes "github.com/cloudevents/sdk-go/pkg/cloudevents/types"
+	log "github.com/phogolabs/log"
 )
 
 type (
@@ -44,6 +45,17 @@ type (
 	URIRef = cloudtypes.URIRef
 )
 
+const (
+	// ApplicationXML is XML content type
+	ApplicationXML = cloudevents.ApplicationXML
+	// ApplicationJSON is JSON content type
+	ApplicationJSON = cloudevents.ApplicationJSON
+	// ApplicationCloudEventsJSON is Cloud Event JSON
+	ApplicationCloudEventsJSON = cloudevents.ApplicationCloudEventsJSON
+	// ApplicationCloudEventsBatchJSON is Cloud Event Batch JSON
+	ApplicationCloudEventsBatchJSON = cloudevents.ApplicationCloudEventsBatchJSON
+)
+
 var (
 	// NewEvent returns a new Event, an optional version can be passed to change the
 	// default spec version from 0.2 to the provided version.
@@ -71,8 +83,25 @@ type CompositeEventTypeHandler map[string]EventHandler
 
 // Handle handles cloud events
 func (kv *CompositeEventTypeHandler) Handle(ctx context.Context, event *Event) error {
+	logger := log.GetContext(ctx)
+
+	logger = logger.WithFields(log.Map{
+		"event_id":      event.ID(),
+		"event_type":    event.Type(),
+		"event_source":  event.Source(),
+		"event_handler": "event_type",
+	})
+
 	if handler, ok := (*kv)[event.Type()]; ok {
-		return handler.Handle(ctx, event)
+		logger.Info("event handling start")
+
+		if err := handler.Handle(ctx, event); err != nil {
+			logger.WithError(err).Error("event handling fail")
+			return err
+		}
+
+		logger.Info("event handling success")
+		return nil
 	}
 
 	return nil
@@ -85,10 +114,28 @@ type CompositeEventSourceHandler map[string]EventHandler
 
 // Handle handles cloud events
 func (kv *CompositeEventSourceHandler) Handle(ctx context.Context, event *Event) error {
+	logger := log.GetContext(ctx)
+
+	logger = logger.WithFields(log.Map{
+		"event_id":      event.ID(),
+		"event_type":    event.Type(),
+		"event_source":  event.Source(),
+		"event_handler": "event_source",
+	})
+
 	if handler, ok := (*kv)[event.Source()]; ok {
-		return handler.Handle(ctx, event)
+		logger.Info("event handling start")
+
+		if err := handler.Handle(ctx, event); err != nil {
+			logger.WithError(err).Error("event handling fail")
+			return err
+		}
+
+		logger.Info("event handling success")
+		return nil
 	}
 
+	logger.Info("event handling not started")
 	return nil
 }
 
@@ -99,12 +146,27 @@ type CompositeEventHandler []EventHandler
 
 // Handle handles cloud events
 func (items *CompositeEventHandler) Handle(ctx context.Context, event *Event) error {
+	logger := log.GetContext(ctx)
+
+	logger = logger.WithFields(log.Map{
+		"event_id":      event.ID(),
+		"event_type":    event.Type(),
+		"event_source":  event.Source(),
+		"event_handler": "event_composite",
+	})
+
 	for _, handler := range *items {
+		logger.Info("event handling start")
+
 		if err := handler.Handle(ctx, event); err != nil {
+			logger.WithError(err).Error("event handling fail")
 			return err
 		}
+
+		logger.Info("event handling success")
 	}
 
+	logger.Info("event handling not started")
 	return nil
 }
 
@@ -114,4 +176,34 @@ func (items *CompositeEventHandler) Handle(ctx context.Context, event *Event) er
 type EventSender interface {
 	// Send sends the event
 	Send(ctx context.Context, event *Event) error
+}
+
+var _ EventHandler = &EventDispatcher{}
+
+// EventDispatcher dispatches the event immediately
+type EventDispatcher struct {
+	Sender EventSender
+}
+
+// Handle handles cloud events
+func (h *EventDispatcher) Handle(ctx context.Context, event *Event) error {
+	logger := log.GetContext(ctx)
+
+	logger = logger.WithFields(log.Map{
+		"event_id":      event.ID(),
+		"event_type":    event.Type(),
+		"event_source":  event.Source(),
+		"event_handler": "event_dispatch",
+	})
+
+	logger.Info("event dispatching start")
+
+	if err := h.Sender.Send(ctx, event); err != nil {
+		logger.WithError(err).Error("event dispatching fail")
+		return err
+	}
+
+	logger.Info("event dispatching success")
+
+	return nil
 }

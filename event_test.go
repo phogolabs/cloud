@@ -145,3 +145,43 @@ var _ = Describe("CompositeEventHandler", func() {
 		})
 	})
 })
+
+var _ = Describe("EventDispatcher", func() {
+	var (
+		dispatcher *cloud.EventDispatcher
+		sender     *fake.EventSender
+	)
+
+	BeforeEach(func() {
+		sender = &fake.EventSender{}
+
+		dispatcher = &cloud.EventDispatcher{
+			Sender: sender,
+		}
+	})
+
+	It("dispatches a message successfully", func() {
+		event := cloud.NewEvent()
+		event.SetType("dev.cliche.contact.create")
+
+		Expect(dispatcher.Handle(context.TODO(), &event)).To(Succeed())
+		Expect(sender.SendCallCount()).To(Equal(1))
+
+		_, args := sender.SendArgsForCall(0)
+		Expect(args).To(Equal(&event))
+	})
+
+	Context("when the sender fails", func() {
+		BeforeEach(func() {
+			sender.SendReturns(fmt.Errorf("oh no"))
+		})
+
+		It("returns an error", func() {
+
+			event := cloud.NewEvent()
+			event.SetType("dev.cliche.contact.create")
+
+			Expect(dispatcher.Handle(context.TODO(), &event)).To(MatchError("oh no"))
+		})
+	})
+})
