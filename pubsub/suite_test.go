@@ -2,6 +2,7 @@ package pubsub_test
 
 import (
 	"context"
+	"log"
 	"testing"
 
 	pubsubevent "github.com/cloudevents/sdk-go/pkg/cloudevents/transport/pubsub"
@@ -13,6 +14,8 @@ import (
 )
 
 func TestPubsub(t *testing.T) {
+	log.SetOutput(GinkgoWriter)
+
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Pubsub Suite")
 }
