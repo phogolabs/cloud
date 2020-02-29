@@ -97,9 +97,10 @@ func (r *Receiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empt
 	}
 
 	logger = logger.WithFields(log.Map{
-		"event_id":     event.ID(),
-		"event_type":   event.Type(),
-		"event_source": event.Source(),
+		"event_id":       event.ID(),
+		"event_type":     event.Type(),
+		"event_source":   event.Source(),
+		"event_receiver": "pubsub",
 	})
 
 	if err := event.Validate(); err != nil {
@@ -122,6 +123,7 @@ func (r *Receiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empt
 		return none, err
 	}
 
+	logger.Info("handling event success")
 	return none, nil
 }
 

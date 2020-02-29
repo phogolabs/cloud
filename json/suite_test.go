@@ -1,6 +1,7 @@
 package json_test
 
 import (
+	"log"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -8,6 +9,8 @@ import (
 )
 
 func TestJson(t *testing.T) {
+	log.SetOutput(GinkgoWriter)
+
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Json Suite")
+	RunSpecs(t, "JSON Suite")
 }

@@ -17,7 +17,7 @@ func TestPubsub(t *testing.T) {
 	log.SetOutput(GinkgoWriter)
 
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Pubsub Suite")
+	RunSpecs(t, "PubSub Suite")
 }
 
 func encode(event *cloud.Event) *pubsub.ReceivedMessage {

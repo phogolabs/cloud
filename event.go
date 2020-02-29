@@ -104,6 +104,7 @@ func (kv *CompositeEventTypeHandler) Handle(ctx context.Context, event *Event) e
 		return nil
 	}
 
+	logger.Info("event handling not started")
 	return nil
 }
 
@@ -204,6 +205,5 @@ func (h *EventDispatcher) Handle(ctx context.Context, event *Event) error {
 	}
 
 	logger.Info("event dispatching success")
-
 	return nil
 }

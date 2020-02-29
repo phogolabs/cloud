@@ -2,25 +2,32 @@ package json
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go"
 	uuid "github.com/google/uuid"
+	"github.com/phogolabs/log"
 )
 
 type (
 	// Event represents the canonical representation of a CloudEvent.
 	Event = cloudevents.Event
 
-	// Payload is a key value map
-	Payload = map[string]interface{}
+	// RawMessage is a raw encoded JSON value.
+	// It implements Marshaler and Unmarshaler and can
+	// be used to delay JSON decoding or precompute a JSON encoding.
+	RawMessage = json.RawMessage
 )
 
 var (
 	// NewEvent returns a new Event, an optional version can be passed to change the
 	// default spec version from 0.2 to the provided version.
 	NewEvent = cloudevents.NewEvent
+
+	// Marshal returns m as the JSON encoding of m.
+	Marshal = json.Marshal
 )
 
 // EventHandler handles cloud events
@@ -43,18 +50,46 @@ type Receiver struct {
 }
 
 // Receive receives the pubsub message
-func (r *Receiver) Receive(ctx context.Context, payload Payload) error {
+func (r *Receiver) Receive(ctx context.Context, message RawMessage) error {
+	logger := log.GetContext(ctx)
+
 	event := NewEvent()
 	event.SetID(uuid.New().String())
 	event.SetType(r.Config.EventName)
 	event.SetSource(r.Config.EventSource)
 	event.SetDataContentType(cloudevents.ApplicationJSON)
-	event.SetData(payload)
+	event.SetData(message)
 	event.SetTime(time.Now())
 
-	if subject, ok := payload[r.Config.EventSubject]; ok {
-		event.SetSubject(fmt.Sprintf("%v", subject))
+	logger = logger.WithFields(log.Map{
+		"event_id":       event.ID(),
+		"event_type":     event.Type(),
+		"event_source":   event.Source(),
+		"event_receiver": "json",
+	})
+
+	if len(message) > 0 {
+		if subject := r.Config.EventSubject; subject != "" {
+			kv := make(map[string]interface{})
+
+			if err := json.Unmarshal(message, &kv); err != nil {
+				logger.WithError(err).Error("event decoding fail")
+				return err
+			}
+
+			if subject, ok := kv[r.Config.EventSubject]; ok {
+				event.SetSubject(fmt.Sprintf("%v", subject))
+			}
+		}
 	}
 
-	return r.Handler.Handle(ctx, &event)
+	logger.Info("handling event start")
+
+	if err := r.Handler.Handle(ctx, &event); err != nil {
+		logger.WithError(err).Info("event handling fail")
+		return err
+	}
+
+	logger.Info("handling event success")
+	return nil
 }

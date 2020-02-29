@@ -31,9 +31,11 @@ var _ = Describe("Receiver", func() {
 	})
 
 	It("receives the event successfully", func() {
-		payload := json.Payload{
-			"UID": "12345",
-		}
+		kv := make(map[string]interface{})
+		kv["UID"] = "12345"
+
+		payload, err := json.Marshal(kv)
+		Expect(err).To(BeNil())
 
 		Expect(receiver.Receive(context.TODO(), payload)).To(Succeed())
 
@@ -50,7 +52,7 @@ var _ = Describe("Receiver", func() {
 		})
 
 		It("returns an error", func() {
-			payload := json.Payload{}
+			payload := json.RawMessage{}
 			Expect(receiver.Receive(context.TODO(), payload)).To(MatchError("oh no"))
 		})
 	})
