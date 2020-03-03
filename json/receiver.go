@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"strings"
 	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go"
@@ -22,6 +24,9 @@ type (
 )
 
 var (
+	// Regexp is the parameter regexp
+	Regexp = regexp.MustCompile("{[a-z_]+}")
+
 	// NewEvent returns a new Event, an optional version can be passed to change the
 	// default spec version from 0.2 to the provided version.
 	NewEvent = cloudevents.NewEvent
@@ -69,18 +74,14 @@ func (r *EventReceiver) Receive(ctx context.Context, message RawMessage) error {
 	})
 
 	if len(message) > 0 {
-		if subject := r.Config.EventSubject; subject != "" {
-			kv := make(map[string]interface{})
+		subject, err := r.subject(message)
 
-			if err := json.Unmarshal(message, &kv); err != nil {
-				logger.WithError(err).Error("event decoding fail")
-				return err
-			}
-
-			if subject, ok := kv[r.Config.EventSubject]; ok {
-				event.SetSubject(fmt.Sprintf("%v", subject))
-			}
+		if err != nil {
+			logger.WithError(err).Error("event subject getting failed")
+			return err
 		}
+
+		event.SetSubject(subject)
 	}
 
 	logger.Info("handling event start")
@@ -92,4 +93,43 @@ func (r *EventReceiver) Receive(ctx context.Context, message RawMessage) error {
 
 	logger.Info("handling event success")
 	return nil
+}
+
+func (r *EventReceiver) subject(message RawMessage) (string, error) {
+	subject := r.Config.EventSubject
+
+	if subject == "" {
+		return subject, nil
+	}
+
+	var (
+		data = make(map[string]interface{})
+		keys = make(map[string]string)
+	)
+
+	if err := json.Unmarshal(message, &data); err != nil {
+		return "", err
+	}
+
+	params := Regexp.FindAllString(subject, -1)
+
+	if len(params) == 0 {
+		params = append(params, subject)
+	}
+
+	for _, param := range params {
+		key := param
+		key = strings.TrimPrefix(key, "{")
+		key = strings.TrimSuffix(key, "}")
+
+		if value, ok := data[key]; ok {
+			keys[param] = fmt.Sprintf("%v", value)
+		}
+	}
+
+	for key, value := range keys {
+		subject = strings.Replace(subject, key, value, -1)
+	}
+
+	return subject, nil
 }
