@@ -39,8 +39,8 @@ type EventHandler interface {
 	Handle(ctx context.Context, event *Event) error
 }
 
-// Receiver receives a pub sub message
-type Receiver struct {
+// EventReceiver receives a pub sub message
+type EventReceiver struct {
 	// Codec represents the code
 	Codec *pubsubevent.Codec
 	// Handler handles the event
@@ -48,7 +48,7 @@ type Receiver struct {
 }
 
 // Mount mounts the receiver to the server
-func (r *Receiver) Mount(server *plex.Server) {
+func (r *EventReceiver) Mount(server *plex.Server) {
 	// register grpc
 	server.Socket().Register(RegisterReceiverServer, r)
 	// register http
@@ -56,7 +56,7 @@ func (r *Receiver) Mount(server *plex.Server) {
 }
 
 // Receive receives the pubsub message
-func (r *Receiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empty.Empty, error) {
+func (r *EventReceiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empty.Empty, error) {
 	var (
 		none   = &empty.Empty{}
 		logger = log.GetContext(ctx)
@@ -70,7 +70,7 @@ func (r *Receiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empt
 
 	if r.Codec == nil {
 		r.Codec = &pubsubevent.Codec{
-			Encoding: pubsubevent.StructuredV1,
+			Encoding: pubsubevent.BinaryV1,
 		}
 	}
 
@@ -100,7 +100,7 @@ func (r *Receiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empt
 		"event_id":       event.ID(),
 		"event_type":     event.Type(),
 		"event_source":   event.Source(),
-		"event_receiver": "pubsub",
+		"event_provider": "providers/google/pubsub",
 	})
 
 	if err := event.Validate(); err != nil {
@@ -127,7 +127,7 @@ func (r *Receiver) Receive(ctx context.Context, payload *ReceivedMessage) (*empt
 	return none, nil
 }
 
-func (r *Receiver) context(ctx context.Context, payload *ReceivedMessage) context.Context {
+func (r *EventReceiver) context(ctx context.Context, payload *ReceivedMessage) context.Context {
 	var (
 		msg = r.message(payload)
 		tx  = TransportContext{
@@ -149,7 +149,7 @@ func (r *Receiver) context(ctx context.Context, payload *ReceivedMessage) contex
 	return ContextWithTransport(ctx, tx)
 }
 
-func (r *Receiver) message(payload *ReceivedMessage) *pubsub.Message {
+func (r *EventReceiver) message(payload *ReceivedMessage) *pubsub.Message {
 	message := &pubsub.Message{
 		ID:         payload.Message.MessageId,
 		Attributes: payload.Message.Attributes,

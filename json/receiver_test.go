@@ -11,17 +11,17 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Receiver", func() {
+var _ = Describe("EventReceiver", func() {
 	var (
-		receiver *json.Receiver
+		receiver *json.EventReceiver
 		handler  *fake.EventHandler
 	)
 
 	BeforeEach(func() {
 		handler = &fake.EventHandler{}
 
-		receiver = &json.Receiver{
-			Config: &json.ReceiverConfig{
+		receiver = &json.EventReceiver{
+			Config: &json.EventReceiverConfig{
 				EventName:    "my-event",
 				EventSubject: "UID",
 				EventSource:  "example.com/service",

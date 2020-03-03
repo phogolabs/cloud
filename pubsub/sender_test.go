@@ -13,9 +13,9 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Sender", func() {
+var _ = Describe("EventSender", func() {
 	var (
-		sender *pubsub.Sender
+		sender *pubsub.EventSender
 		topic  *pubsub.Topic
 		client *pubsub.Client
 		server *pstest.Server
@@ -32,7 +32,7 @@ var _ = Describe("Sender", func() {
 		client, err = pubsub.NewClient(context.TODO(), "my-project", option.WithGRPCConn(conn))
 		Expect(err).To(BeNil())
 
-		sender = &pubsub.Sender{
+		sender = &pubsub.EventSender{
 			TopicID: "my-topic",
 			Client:  client,
 		}

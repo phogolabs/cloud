@@ -14,14 +14,14 @@ import (
 
 var _ = Describe("Receiver", func() {
 	var (
-		receiver *pubsub.Receiver
+		receiver *pubsub.EventReceiver
 		handler  *fake.EventHandler
 	)
 
 	BeforeEach(func() {
 		handler = &fake.EventHandler{}
 
-		receiver = &pubsub.Receiver{
+		receiver = &pubsub.EventReceiver{
 			Handler: handler,
 		}
 	})

@@ -32,8 +32,8 @@ var (
 	NewClient = pubsub.NewClient
 )
 
-// Sender sends the event to pub sub topic
-type Sender struct {
+// EventSender sends the event to pub sub topic
+type EventSender struct {
 	// TopicID destination
 	TopicID string
 	// Codec represents the code
@@ -43,7 +43,7 @@ type Sender struct {
 }
 
 // Send sends the event
-func (s *Sender) Send(ctx context.Context, event *Event) error {
+func (s *EventSender) Send(ctx context.Context, event *Event) error {
 	logger := log.GetContext(ctx)
 
 	logger = logger.WithFields(log.Map{
@@ -59,7 +59,7 @@ func (s *Sender) Send(ctx context.Context, event *Event) error {
 
 	if s.Codec == nil {
 		s.Codec = &pubsubevent.Codec{
-			Encoding: pubsubevent.StructuredV1,
+			Encoding: pubsubevent.BinaryV1,
 		}
 	}
 

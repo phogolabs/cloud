@@ -8,7 +8,7 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go"
 	uuid "github.com/google/uuid"
-	"github.com/phogolabs/log"
+	log "github.com/phogolabs/log"
 )
 
 type (
@@ -36,21 +36,21 @@ type EventHandler interface {
 	Handle(ctx context.Context, event *Event) error
 }
 
-// ReceiverConfig represent the receiver's configuration
-type ReceiverConfig struct {
+// EventReceiverConfig represent the receiver's configuration
+type EventReceiverConfig struct {
 	EventName    string
 	EventSubject string
 	EventSource  string
 }
 
-// Receiver receives a pub sub message
-type Receiver struct {
-	Config  *ReceiverConfig
+// EventReceiver receives a pub sub message
+type EventReceiver struct {
+	Config  *EventReceiverConfig
 	Handler EventHandler
 }
 
 // Receive receives the pubsub message
-func (r *Receiver) Receive(ctx context.Context, message RawMessage) error {
+func (r *EventReceiver) Receive(ctx context.Context, message RawMessage) error {
 	logger := log.GetContext(ctx)
 
 	event := NewEvent()
@@ -65,7 +65,7 @@ func (r *Receiver) Receive(ctx context.Context, message RawMessage) error {
 		"event_id":       event.ID(),
 		"event_type":     event.Type(),
 		"event_source":   event.Source(),
-		"event_receiver": "json",
+		"event_provider": "providers/json",
 	})
 
 	if len(message) > 0 {
