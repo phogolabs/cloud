@@ -49,10 +49,10 @@ type EventReceiver struct {
 
 // Mount mounts the receiver to the server
 func (r *EventReceiver) Mount(server *plex.Server) {
-	// register grpc
-	server.Socket().Register(RegisterReceiverServer, r)
-	// register http
-	server.Mux().Register(RegisterReceiverHandlerServer, r)
+	// enable http proxy
+	server.Proxy.Use(RegisterReceiverHandler)
+	// enable grpc gateway
+	RegisterReceiverServer(server.Gateway.Server, r)
 }
 
 // Receive receives the pubsub message
