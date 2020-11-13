@@ -1,0 +1,14 @@
+---
+vendor:
+- name: pubsub/google/api
+  source:
+   - https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/annotations.proto
+   - https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/resource.proto
+   - https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/field_behavior.proto
+   - https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/http.proto
+   - https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/httpbody.proto
+   - https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/client.proto
+
+- name: pubsub/google/pubsub/v1
+  source:
+   - https://raw.githubusercontent.com/googleapis/googleapis/master/google/pubsub/v1/pubsub.proto
