@@ -1,10 +1,13 @@
 version: v1beta1
 
+name: github.com/phogolabs/cloud
+
 build:
   roots:
-    - pubsub
+    - proto
 
 lint:
+  service_suffix: API
   # comment rules
   allow_comment_ignores: true
   # rpc rules
@@ -24,8 +27,8 @@ lint:
 
   except:
     - PACKAGE_VERSION_SUFFIX
-    - PACKAGE_DIRECTORY_MATCH 
-    - RPC_NO_CLIENT_STREAMING 
+    - PACKAGE_DIRECTORY_MATCH
+    - RPC_NO_CLIENT_STREAMING
 
 breaking:
   use:
