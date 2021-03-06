@@ -8,11 +8,20 @@ import (
 type (
 	// Event represents the canonical representation of a CloudEvent.
 	Event = v2.Event
+
+	// Client represents a client
+	Client = v2.Client
 )
 
 // NewEvent returns a new Event, an optional version can be passed to change the
 // default spec version from 1.0 to the provided version.
 var NewEvent = v2.NewEvent
+
+// NewClient creates a new client
+var NewClient = v2.NewClient
+
+// NewClientObserved creates an observable client
+var NewClientObserved = v2.NewClientObserved
 
 // NewHTTP creates a new http protocol
 var NewHTTP = v2.NewHTTP
