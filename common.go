@@ -11,6 +11,9 @@ type (
 
 	// Client represents a client
 	Client = v2.Client
+
+	// Result represents the result
+	Result = v2.Result
 )
 
 // NewEvent returns a new Event, an optional version can be passed to change the
