@@ -30,7 +30,6 @@ cloud.google.com/go/firestore v1.1.0/go.mod h1:ulACoGHTpvq5r8rxGJ4ddJZBZqakUQqCl
 cloud.google.com/go/pubsub v1.0.1/go.mod h1:R0Gpsv3s54REJCy4fxDixWD93lHJMoZTyQ2kNxGRt3I=
 cloud.google.com/go/pubsub v1.1.0/go.mod h1:EwwdRX2sKPjnvnqCa270oGRyludottCI76h+R3AArQw=
 cloud.google.com/go/pubsub v1.2.0/go.mod h1:jhfEVHT8odbXTkndysNHCcx0awwzvfOlguIAii9o8iA=
-cloud.google.com/go/pubsub v1.3.1 h1:ukjixP1wl0LpnZ6LWtZJ0mX5tBmjp1f8Sqer8Z2OMUU=
 cloud.google.com/go/pubsub v1.3.1/go.mod h1:i+ucay31+CNRpDW4Lu78I4xXG+O1r/MAHgjpRVR+TSU=
 cloud.google.com/go/pubsub v1.10.1 h1:ysSVlI7vw1doId/jatBqfbbMUjFVe29oiHHc2fpSzf4=
 cloud.google.com/go/pubsub v1.10.1/go.mod h1:P5XeG4KyW/T3e/DqxdTTLZGMNAW42PzRs7haJ5gdhcc=
@@ -198,7 +197,6 @@ github.com/google/pprof v0.0.0-20201203190320-1bf35d6f28c2/go.mod h1:kpwsk12EmLe
 github.com/google/pprof v0.0.0-20210122040257-d980be63207e/go.mod h1:kpwsk12EmLew5upagYY7GY0pfYCcupk39gWOCRROcvE=
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
 github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
-github.com/google/uuid v1.1.2 h1:EVhdT+1Kseyi1/pUmXKaFxYsDNy9RQYkMWRH68J/W7Y=
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/google/uuid v1.2.0 h1:qJYtXnJRWmpe7m/3XlyhrsLrEURqHRM2kxzoxXqyUDs=
 github.com/google/uuid v1.2.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
@@ -326,7 +324,6 @@ github.com/phogolabs/log v0.0.0-20210306145126-52c24a2892fb h1:vUGTupIhi1/P558sB
 github.com/phogolabs/log v0.0.0-20210306145126-52c24a2892fb/go.mod h1:jLPIzHaiMkYf5Z228pAKDy91YXqg9tcwGzgZLowv4ac=
 github.com/phogolabs/plex v0.0.0-20210306150958-7aa4db048ace h1:lC2u79aVeOEyw3nKgjZoBi7f3ujuKpgNtwiA9uDsDd4=
 github.com/phogolabs/plex v0.0.0-20210306150958-7aa4db048ace/go.mod h1:5VUQ3Csytx8Ck89ksIpX0bf4aSyWqhRnAB5TLySFE+g=
-github.com/phogolabs/restify v0.0.0-20210301135413-e8eaf694c093 h1:w+oyap4vNoHOp05EqEiwV2eDLeKabB1x2FEDtnAzvek=
 github.com/phogolabs/restify v0.0.0-20210301135413-e8eaf694c093/go.mod h1:mTlo9FEPkn+io2vREvkMXwQM9Ve/rW1ATBenrBoE+H8=
 github.com/phogolabs/restify v0.0.0-20210306145306-007c18933e4b h1:Of5LOCmKGkXyobR/Jmbbn+Y2y89fFmG3tQpi/iuQVEE=
 github.com/phogolabs/restify v0.0.0-20210306145306-007c18933e4b/go.mod h1:prnkwOMAitE5oH/FKbOnO6ub6ujOZZxDzn7rKB7lgo4=
@@ -605,7 +602,6 @@ golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20210220050731-9a76102bfb43/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210225134936-a50acf3fe073/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210301091718-77cc2087c03b/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
-golang.org/x/sys v0.0.0-20210305230114-8fe3ee5dd75b h1:ggRgirZABFolTmi3sn6Ivd9SipZwLedQ5wR0aAKnFxU=
 golang.org/x/sys v0.0.0-20210305230114-8fe3ee5dd75b/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210308170721-88b6017d0656 h1:FuBaiPCiXkq4v+JY5JEGPU/HwEZwpVyDbu/KBz9fU+4=
 golang.org/x/sys v0.0.0-20210308170721-88b6017d0656/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=

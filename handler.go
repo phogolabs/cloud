@@ -2,10 +2,13 @@ package cloud
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi"
 	"github.com/phogolabs/plex"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // EventReceiver represents a receiver
@@ -93,5 +96,6 @@ func (h *Webhook) receive(ctx context.Context, eventArgs Event) Result {
 		return handler.Receive(ctx, eventArgs)
 	}
 
-	return nil
+	message := fmt.Sprintf("receiver %s not found", topic)
+	return status.Error(codes.NotFound, message)
 }

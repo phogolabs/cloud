@@ -1,6 +1,8 @@
 package cloud
 
 import (
+	"context"
+
 	v2 "github.com/cloudevents/sdk-go/v2"
 	"github.com/cloudevents/sdk-go/v2/binding/format"
 )
@@ -42,3 +44,9 @@ var (
 	ApplicationCloudEventsJSON      = v2.ApplicationCloudEventsJSON
 	ApplicationCloudEventsBatchJSON = v2.ApplicationCloudEventsBatchJSON
 )
+
+// EventSender sends cloud events
+type EventSender interface {
+	// Send will transmit the given event over the client's configured transport.
+	Send(ctx context.Context, event Event) Result
+}
