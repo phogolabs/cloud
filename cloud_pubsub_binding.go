@@ -1,14 +1,17 @@
 package cloud
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"github.com/cloudevents/sdk-go/v2/event"
 	"github.com/cloudevents/sdk-go/v2/types"
+	"github.com/golang/protobuf/jsonpb"
 )
 
+// PubsubFormat represents a pub-sub push format
 type PubsubFormat struct{}
 
 func (PubsubFormat) MediaType() string {
@@ -20,10 +23,11 @@ func (PubsubFormat) Marshal(e *event.Event) ([]byte, error) {
 	return json.Marshal(e)
 }
 
+// Unmarshal unmarshals the event for a given data
 func (PubsubFormat) Unmarshal(data []byte, e *event.Event) error {
 	payload := &PubsubEvent{}
 
-	if err := json.Unmarshal(data, payload); err != nil {
+	if err := jsonpb.Unmarshal(bytes.NewBuffer(data), payload); err != nil {
 		return err
 	}
 
