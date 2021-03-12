@@ -6,6 +6,7 @@ import (
 	v2 "github.com/cloudevents/sdk-go/v2"
 	"github.com/cloudevents/sdk-go/v2/binding/format"
 	"github.com/cloudevents/sdk-go/v2/event/datacodec"
+	"github.com/cloudevents/sdk-go/v2/event/datacodec/json"
 )
 
 type (
@@ -19,9 +20,20 @@ type (
 	Result = v2.Result
 )
 
-// NewEvent returns a new Event, an optional version can be passed to change the
-// default spec version from 1.0 to the provided version.
 var (
+	// Decode looks up and invokes the decoder registered for the given content
+	// type. An error is returned if no decoder is registered for the given
+	// content type.
+	JSONDecode = json.Decode
+	// Encode looks up and invokes the encoder registered for the given content
+	// type. An error is returned if no encoder is registered for the given
+	// content type.
+	JSONEncode = json.Encode
+)
+
+var (
+	// NewEvent returns a new Event, an optional version can be passed to change the
+	// default spec version from 1.0 to the provided version.
 	NewEvent = v2.NewEvent
 
 	// NewClient creates a new client
