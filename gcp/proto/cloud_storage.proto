@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package phogolabs.cloud;
+package phogolabs.cloud.gcp;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/phogolabs/cloud;cloud";
+option go_package = "github.com/phogolabs/cloud/gcp;gcp";
 
 // An object within Google Cloud Storage.
 message StorageObject {

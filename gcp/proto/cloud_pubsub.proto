@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package phogolabs.cloud;
+package phogolabs.cloud.gcp;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/phogolabs/cloud;cloud";
+option go_package = "github.com/phogolabs/cloud/gcp;gcp";
 
 // Payload received by the service
 message PubsubEvent {
@@ -30,4 +30,3 @@ message PubsubMessage {
   // it receives the `Publish` call.
   google.protobuf.Timestamp publish_time = 4;
 }
-
