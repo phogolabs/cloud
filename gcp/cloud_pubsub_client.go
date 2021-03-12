@@ -20,7 +20,7 @@ var (
 )
 
 // NewPubsub creates a new pub-sub client
-func NewClientPubsub(topic string, opts ...PubsubOption) (Client, error) {
+func NewClientPubsub(opts ...PubsubOption) (Client, error) {
 	protocol, err := pubsub.New(context.Background(), opts...)
 	if err != nil {
 		return nil, err
