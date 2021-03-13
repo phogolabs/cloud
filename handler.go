@@ -103,7 +103,7 @@ func (h *Webhook) receive(ctx context.Context, eventArgs Event) Result {
 
 	// find the handler for given topic
 	handler, ok := h.routes[topic]
-	if ok {
+	if !ok {
 		err := status.Errorf(codes.NotFound, "receiver %s not found", topic)
 		// log the error
 		logger.WithError(err).Error("receiver does not exist")
