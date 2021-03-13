@@ -1,13 +1,12 @@
 package gcp
 
 import (
-	"bytes"
 	"encoding/json"
 
 	"github.com/AlekSi/pointer"
 	"github.com/cloudevents/sdk-go/v2/event"
 	"github.com/cloudevents/sdk-go/v2/types"
-	"github.com/golang/protobuf/jsonpb"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // StorageFormat represents a storage event format
@@ -26,7 +25,7 @@ func (StorageFormat) Marshal(e *event.Event) ([]byte, error) {
 func (StorageFormat) Unmarshal(data []byte, e *event.Event) error {
 	payload := &PubsubEvent{}
 
-	if err := jsonpb.Unmarshal(bytes.NewBuffer(data), payload); err != nil {
+	if err := protojson.Unmarshal(data, payload); err != nil {
 		return err
 	}
 
@@ -42,7 +41,7 @@ func (StorageFormat) Unmarshal(data []byte, e *event.Event) error {
 	e.Context = &event.EventContextV1{
 		ID:              payload.Message.Attributes["objectGeneration"],
 		Subject:         pointer.ToStringOrNil(objectID),
-		DataContentType: pointer.ToStringOrNil(event.ApplicationJSON),
+		DataContentType: pointer.ToStringOrNil("application/protobuf"),
 		Type:            payload.Message.Attributes["eventType"],
 		Source:          *types.ParseURIRef("https://" + bucketID),
 		Time:            timestamp,

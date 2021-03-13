@@ -1,14 +1,13 @@
 package gcp
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"github.com/cloudevents/sdk-go/v2/event"
 	"github.com/cloudevents/sdk-go/v2/types"
-	"github.com/golang/protobuf/jsonpb"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // PubsubFormat represents a pub-sub push format
@@ -27,7 +26,7 @@ func (PubsubFormat) Marshal(e *event.Event) ([]byte, error) {
 func (PubsubFormat) Unmarshal(data []byte, e *event.Event) error {
 	payload := &PubsubEvent{}
 
-	if err := jsonpb.Unmarshal(bytes.NewBuffer(data), payload); err != nil {
+	if err := protojson.Unmarshal(data, payload); err != nil {
 		return err
 	}
 

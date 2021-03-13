@@ -37,7 +37,7 @@ message StorageObject {
   // preconditions and for detecting changes in metadata. A metageneration
   // number is only meaningful in the context of a particular generation of a
   // particular object.
-  string metageneration = 6;
+  int64 metageneration = 6;
 
   // The deletion time of the object. Will be returned if and only if this
   // version of the object has been deleted.
@@ -51,7 +51,7 @@ message StorageObject {
 
   // Content-Length of the object data in bytes, matching
   // [https://tools.ietf.org/html/rfc7230#section-3.3.2][RFC 7230 §3.3.2].
-  string size = 9;
+  int64 size = 9;
 
   // The creation time of the object.
   // Attempting to set this field will result in an error.
@@ -117,7 +117,7 @@ message StorageObject {
 
   // The content generation of this object. Used for object versioning.
   // Attempting to set this field will result in an error.
-  string generation = 26;
+  int64 generation = 26;
 
   // Metadata of customer-supplied encryption key, if the object is encrypted by
   // such a key.
