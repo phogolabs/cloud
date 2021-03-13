@@ -25,7 +25,11 @@ func (StorageFormat) Marshal(e *event.Event) ([]byte, error) {
 func (StorageFormat) Unmarshal(data []byte, e *event.Event) error {
 	payload := &PubsubEvent{}
 
-	if err := protojson.Unmarshal(data, payload); err != nil {
+	decoder := protojson.UnmarshalOptions{
+		DiscardUnknown: true,
+	}
+
+	if err := decoder.Unmarshal(data, payload); err != nil {
 		return err
 	}
 
