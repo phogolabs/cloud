@@ -2,10 +2,10 @@ package cloud
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/phogolabs/log"
 	"github.com/phogolabs/plex"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -92,10 +92,33 @@ func (h *Webhook) format(next http.Handler) http.Handler {
 func (h *Webhook) receive(ctx context.Context, eventArgs Event) Result {
 	topic := chi.URLParamFromCtx(ctx, "topic")
 
-	if handler, ok := h.routes[topic]; ok {
-		return handler.Receive(ctx, eventArgs)
+	// enrich the logger
+	logger := log.GetContext(ctx).WithFields(log.Map{
+		"event_id":      eventArgs.ID(),
+		"event_type":    eventArgs.Type(),
+		"event_source":  eventArgs.Source(),
+		"event_subject": eventArgs.Subject(),
+		"event_topic":   topic,
+	})
+
+	// find the handler for given topic
+	handler, ok := h.routes[topic]
+	if ok {
+		err := status.Errorf(codes.NotFound, "receiver %s not found", topic)
+		// log the error
+		logger.WithError(err).Error("receiver does not exist")
+		// stop eht execution
+		return err
 	}
 
-	message := fmt.Sprintf("receiver %s not found", topic)
-	return status.Error(codes.NotFound, message)
+	// enrich the context
+	ctx = log.SetContext(ctx, logger)
+	// execute the receiver
+	if err := handler.Receive(ctx, eventArgs); err != nil {
+		logger.WithError(err).Error("receiver failure")
+		// stop eht execution
+		return err
+	}
+
+	return nil
 }
