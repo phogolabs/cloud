@@ -117,7 +117,7 @@ message StorageObject {
 
   // The content generation of this object. Used for object versioning.
   // Attempting to set this field will result in an error.
-  int64 generation = 26;
+  string generation = 26;
 
   // Metadata of customer-supplied encryption key, if the object is encrypted by
   // such a key.
