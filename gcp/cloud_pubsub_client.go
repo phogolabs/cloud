@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/cloudevents/sdk-go/protocol/pubsub/v2"
+	v2 "github.com/cloudevents/sdk-go/v2"
 )
 
 type (
@@ -20,11 +21,11 @@ var (
 )
 
 // NewPubsub creates a new pub-sub client
-func NewClientPubsub(opts ...PubsubOption) (Client, error) {
+func NewClientPubsub(opts ...PubsubOption) (v2.Client, error) {
 	protocol, err := pubsub.New(context.Background(), opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewClient(protocol)
+	return v2.NewClient(protocol)
 }

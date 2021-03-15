@@ -12,8 +12,9 @@ import (
 // StorageFormat represents a storage event format
 type StorageFormat struct{}
 
+// MediaType returns the media type
 func (StorageFormat) MediaType() string {
-	return event.ApplicationJSON
+	return "application/grpc+json;message=phogolabs.cloud.gcp.StorageObject"
 }
 
 // This method is wrong, but I don't need marshalling, just unmarshalling.

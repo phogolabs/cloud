@@ -13,8 +13,9 @@ import (
 // PubsubFormat represents a pub-sub push format
 type PubsubFormat struct{}
 
+// MediaType returns the media type
 func (PubsubFormat) MediaType() string {
-	return event.ApplicationJSON
+	return "application/grpc+json;message=phogolabs.cloud.gcp.PubsubEvent"
 }
 
 // This method is wrong, but I don't need marshalling, just unmarshalling.
