@@ -2,12 +2,14 @@ package cloud
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi"
 	"github.com/phogolabs/log"
 	"github.com/phogolabs/plex"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -94,11 +96,13 @@ func (h *Webhook) receive(ctx context.Context, eventArgs Event) Result {
 
 	// enrich the logger
 	logger := log.GetContext(ctx).WithFields(log.Map{
-		"event_id":      eventArgs.ID(),
-		"event_type":    eventArgs.Type(),
-		"event_source":  eventArgs.Source(),
-		"event_subject": eventArgs.Subject(),
-		"event_topic":   topic,
+		"incoming_event_id":                eventArgs.ID(),
+		"incoming_event_type":              eventArgs.Type(),
+		"incoming_event_source":            eventArgs.Source(),
+		"incoming_event_source_topic":      topic,
+		"incoming_event_subject":           eventArgs.Subject(),
+		"incoming_event_data_schema":       eventArgs.DataSchema(),
+		"incoming_event_data_content_type": eventArgs.DataContentType(),
 	})
 
 	// find the handler for given topic
@@ -111,8 +115,11 @@ func (h *Webhook) receive(ctx context.Context, eventArgs Event) Result {
 		return err
 	}
 
-	// enrich the context
+	// overwrite the logger
 	ctx = log.SetContext(ctx, logger)
+	// enrich the context with extensions
+	ctx = h.metadata(ctx, eventArgs)
+
 	// execute the receiver
 	if err := handler.Receive(ctx, eventArgs); err != nil {
 		logger.WithError(err).Error("receiver failure")
@@ -121,4 +128,14 @@ func (h *Webhook) receive(ctx context.Context, eventArgs Event) Result {
 	}
 
 	return nil
+}
+
+func (h *Webhook) metadata(ctx context.Context, eventArgs Event) context.Context {
+	kv := metadata.New(make(map[string]string))
+
+	for k, v := range eventArgs.Extensions() {
+		kv.Append(k, fmt.Sprintf("%v", v))
+	}
+
+	return metadata.NewIncomingContext(ctx, kv)
 }
