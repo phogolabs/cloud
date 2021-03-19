@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/phogolabs/log"
@@ -134,6 +135,10 @@ func (h *Webhook) metadata(ctx context.Context, eventArgs Event) context.Context
 	kv := metadata.New(make(map[string]string))
 
 	for k, v := range eventArgs.Extensions() {
+		if !strings.HasPrefix("x-", k) {
+			k = fmt.Sprintf("x-%v", k)
+		}
+
 		kv.Append(k, fmt.Sprintf("%v", v))
 	}
 
