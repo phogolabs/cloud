@@ -5,17 +5,22 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
+	"github.com/cloudevents/sdk-go/v2/binding/format"
 	"github.com/cloudevents/sdk-go/v2/event"
 	"github.com/cloudevents/sdk-go/v2/types"
 	"google.golang.org/protobuf/encoding/protojson"
 )
+
+func init() {
+	format.Add(&PubsubFormat{})
+}
 
 // PubsubFormat represents a pub-sub push format
 type PubsubFormat struct{}
 
 // MediaType returns the media type
 func (PubsubFormat) MediaType() string {
-	return "application/grpc+json;message=phogolabs.cloud.gcp.PubsubEvent"
+	return "application/google.pubsub.message+json"
 }
 
 // This method is wrong, but I don't need marshalling, just unmarshalling.
