@@ -2,6 +2,7 @@ package cloud
 
 import (
 	v2 "github.com/cloudevents/sdk-go/v2"
+	"github.com/cloudevents/sdk-go/v2/binding/format"
 )
 
 type (
@@ -31,6 +32,9 @@ var (
 
 	// NewHTTPReceiveHandler creates a new HTTP handler
 	NewHTTPReceiveHandler = v2.NewHTTPReceiveHandler
+
+	// AddFormat adds a new Format. It can be retrieved by Lookup(f.MediaType())
+	AddFormat = format.Add
 )
 
 var (
