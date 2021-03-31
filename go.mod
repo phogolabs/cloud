@@ -4,7 +4,6 @@ go 1.16
 
 require (
 	cloud.google.com/go/pubsub v1.10.1 // indirect
-	github.com/AlekSi/pointer v1.1.0
 	github.com/cloudevents/sdk-go/protocol/pubsub/v2 v2.3.1
 	github.com/cloudevents/sdk-go/v2 v2.3.1
 	github.com/go-chi/chi v4.1.2+incompatible

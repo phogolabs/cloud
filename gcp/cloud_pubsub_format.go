@@ -2,9 +2,7 @@ package gcp
 
 import (
 	"encoding/json"
-	"fmt"
 
-	"github.com/AlekSi/pointer"
 	"github.com/cloudevents/sdk-go/v2/binding/format"
 	"github.com/cloudevents/sdk-go/v2/event"
 	"github.com/cloudevents/sdk-go/v2/types"
@@ -45,20 +43,36 @@ func (PubsubFormat) Unmarshal(data []byte, e *event.Event) error {
 		return err
 	}
 
-	source := types.ParseURIRef(payload.Message.Attributes["ce-source"])
-	if source == nil {
-		return fmt.Errorf("ce-source is not provided")
-	}
-
+	e.Context = &event.EventContextV1{}
 	e.DataEncoded = payload.Message.Data
-	e.Context = &event.EventContextV1{
-		ID:              payload.Message.Attributes["ce-id"],
-		Subject:         pointer.ToStringOrNil(payload.Message.Attributes["ce-subject"]),
-		DataContentType: pointer.ToStringOrNil(payload.Message.Attributes["ce-datacontenttype"]),
-		Type:            payload.Message.Attributes["ce-type"],
-		Source:          *source,
-		Time:            timestamp,
+
+	if err := e.Context.SetID(payload.Message.Attributes["ce-id"]); err != nil {
+		return err
 	}
 
-	return e.Validate()
+	if err := e.Context.SetType(payload.Message.Attributes["ce-type"]); err != nil {
+		return err
+	}
+
+	if err := e.Context.SetSubject(payload.Message.Attributes["ce-subject"]); err != nil {
+		return err
+	}
+
+	if err := e.Context.SetSource(payload.Message.Attributes["ce-source"]); err != nil {
+		return err
+	}
+
+	if err := e.Context.SetTime(timestamp.Time); err != nil {
+		return err
+	}
+
+	if err := e.Context.SetDataSchema(payload.Message.Attributes["ce-dataschema"]); err != nil {
+		return err
+	}
+
+	if err := e.Context.SetDataContentType(payload.Message.Attributes["ce-datacontenttype"]); err != nil {
+		return err
+	}
+
+	return nil
 }
