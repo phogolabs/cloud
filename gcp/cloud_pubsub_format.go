@@ -70,7 +70,7 @@ func (PubsubFormat) Unmarshal(data []byte, e *event.Event) error {
 		return err
 	}
 
-	if err := e.Context.SetDataContentType(payload.Message.Attributes["content-type"]); err != nil {
+	if err := e.Context.SetDataContentType(payload.Message.Attributes["Content-Type"]); err != nil {
 		return err
 	}
 
