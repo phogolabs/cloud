@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/phogolabs/log"
 	"github.com/phogolabs/plex"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -73,6 +74,7 @@ func (h *Webhook) Mount(r *plex.Server) {
 	router := r.Proxy.Router()
 
 	router.Route("/internal/topics/{topic}", func(route chi.Router) {
+		route.Use(h.logger)
 		route.Use(h.format)
 		route.Mount("/", handler)
 	})
@@ -86,6 +88,19 @@ func (h *Webhook) format(next http.Handler) http.Handler {
 			r.Header.Set("Content-Type", mediaType)
 		}
 
+		next.ServeHTTP(w, r)
+	}
+
+	return http.HandlerFunc(fn)
+}
+
+func (h *Webhook) logger(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		if logger, err := zap.NewProduction(); err == nil {
+			r = r.WithContext(
+				WithLogger(r.Context(), logger.Named("cloud").Sugar()),
+			)
+		}
 		next.ServeHTTP(w, r)
 	}
 
