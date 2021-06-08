@@ -8,8 +8,11 @@ import (
 )
 
 type (
-	// Option is the function signature required to be considered an pubsub.Option.
+	// PubsubOption is the function signature required to be considered an pubsub.Option.
 	PubsubOption = pubsub.Option
+
+	// PubsubProtocol is the pubsub.Protocol
+	PubsubProtocol = pubsub.Protocol
 )
 
 var (
