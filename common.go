@@ -24,9 +24,6 @@ var (
 	// NewClient creates a new client
 	NewClient = v2.NewClient
 
-	// NewClientObserved creates an observable client
-	NewClientObserved = v2.NewClientObserved
-
 	// NewHTTP creates a new http protocol
 	NewHTTP = v2.NewHTTP
 
