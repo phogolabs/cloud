@@ -50,7 +50,7 @@ func (d *EventArgsTransmitter) Dispatch(ctx context.Context, args EventArgs) err
 
 	logger.Infof("create outbound event")
 	// create the event
-	event, err := d.event(args)
+	event, err := NewEventArgs(args)
 	if err != nil {
 		logger.WithError(err).Errorf("create outbound event failure")
 		return err
@@ -76,7 +76,8 @@ func (d *EventArgsTransmitter) Dispatch(ctx context.Context, args EventArgs) err
 	return nil
 }
 
-func (d *EventArgsTransmitter) event(args EventArgs) (*Event, error) {
+// NewEventArgs creates a new event args
+func NewEventArgs(args EventArgs) (*Event, error) {
 	eventArgs := NewEvent()
 	eventArgs.SetType(args.Type())
 	eventArgs.SetID(schema.NewUUID().String())
