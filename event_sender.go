@@ -2,6 +2,8 @@ package cloud
 
 import "context"
 
+//go:generate counterfeiter -o ./fake/event_sender.go . EventSender
+
 // EventSender sends cloud events
 type EventSender interface {
 	// Send will transmit the given event over the client's configured transport.

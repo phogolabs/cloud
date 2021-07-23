@@ -4,7 +4,7 @@ package phogolabs.cloud.gcp;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/phogolabs/cloud/gcp;gcp";
+option go_package = "github.com/phogolabs/cloud/provider/gcp;gcp";
 
 // An object within Google Cloud Storage.
 message StorageObject {
