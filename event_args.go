@@ -16,6 +16,7 @@ type EventArgs interface {
 	Source() string
 	Subject() string
 	DataSchema() string
+	Extensions() Dictionary
 	DataContentType() string
 }
 
@@ -37,22 +38,23 @@ type EventArgsDispatcher interface {
 	Dispatch(context.Context, EventArgs) error
 }
 
-var _ EventArgsDispatcher = &EventArgsTransmitter{}
+var _ EventArgsDispatcher = &EventDispatcher{}
 
-// EventArgsTransmitter represents an event dispatcher
-type EventArgsTransmitter struct {
+// EventDispatcher represents an event dispatcher
+type EventDispatcher struct {
+	// EventSender sends the actual event
 	EventSender EventSender
 }
 
 // Dispatch dispatches a given event
-func (d *EventArgsTransmitter) Dispatch(ctx context.Context, args EventArgs) error {
+func (d *EventDispatcher) Dispatch(ctx context.Context, args EventArgs) error {
 	logger := log.GetContext(ctx)
 
-	logger.Infof("create outbound event")
+	logger.Infof("create an outbound event")
 	// create the event
 	event, err := NewEventArgs(args)
 	if err != nil {
-		logger.WithError(err).Errorf("create outbound event failure")
+		logger.WithError(err).Errorf("create an outbound event failure")
 		return err
 	}
 
@@ -66,10 +68,10 @@ func (d *EventArgsTransmitter) Dispatch(ctx context.Context, args EventArgs) err
 		"outgoing_event_data_content_type": event.DataContentType(),
 	})
 
-	logger.Info("send outbound event")
+	logger.Info("send an outbound event")
 	// send the outbound event to another pub subs
 	if err := d.EventSender.Send(ctx, *event); err != nil {
-		logger.WithError(err).Error("send outbound event")
+		logger.WithError(err).Error("send an outbound event")
 		return err
 	}
 
@@ -78,18 +80,22 @@ func (d *EventArgsTransmitter) Dispatch(ctx context.Context, args EventArgs) err
 
 // NewEventArgs creates a new event args
 func NewEventArgs(args EventArgs) (*Event, error) {
-	eventArgs := NewEvent()
-	eventArgs.SetType(args.Type())
-	eventArgs.SetID(schema.NewUUID().String())
-	eventArgs.SetSubject(args.Subject())
-	eventArgs.SetSource(args.Source())
-	eventArgs.SetDataSchema(args.DataSchema())
-	eventArgs.SetTime(time.Now())
+	event := NewEvent()
+	event.SetType(args.Type())
+	event.SetID(schema.NewUUID().String())
+	event.SetSubject(args.Subject())
+	event.SetSource(args.Source())
+	event.SetDataSchema(args.DataSchema())
+	event.SetTime(time.Now())
 
-	if err := eventArgs.SetData(args.DataContentType(), args); err != nil {
+	// add any extensions at the end
+	for k, v := range args.Extensions() {
+		event.SetExtension(k, v)
+	}
+
+	if err := event.SetData(args.DataContentType(), args); err != nil {
 		return nil, err
 	}
 
-	return &eventArgs, nil
-
+	return &event, nil
 }

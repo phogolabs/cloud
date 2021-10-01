@@ -35,11 +35,12 @@ var (
 )
 
 var (
+	TextPlain                       = v2.TextPlain
 	ApplicationXML                  = v2.ApplicationXML
 	ApplicationJSON                 = v2.ApplicationJSON
-	TextPlain                       = v2.TextPlain
 	ApplicationCloudEventsJSON      = v2.ApplicationCloudEventsJSON
 	ApplicationCloudEventsBatchJSON = v2.ApplicationCloudEventsBatchJSON
-	ApplicationGRPCProto            = "application/grpc+proto"
-	ApplicationGRPCJSON             = "application/grpc+json"
 )
+
+// Dictionary represents a dictionary
+type Dictionary = map[string]interface{}
