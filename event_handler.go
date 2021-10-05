@@ -7,14 +7,9 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/phogolabs/log"
-	"github.com/phogolabs/plex"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 )
-
-type HandlerFunc = func(http.Handler) http.Handler
 
 // EventReceiver represents a receiver
 type EventReceiver interface {
@@ -31,75 +26,60 @@ func (fn EventReceiverFunc) Receive(ctx context.Context, eventArgs Event) Result
 
 // EventHandler handles the events received from pubsub topic
 type Webhook struct {
-	routes     map[string]EventReceiver
-	middleware map[string]HandlerFunc
+	// router represents the HTTP handler that routes the requests to the
+	// mounted receiver
+	router chi.Router
+	// protocol represents the HTTP protocol
+	protocol *HTTPProtocol
 }
 
 // NewWebhook creates a new event handler
 func NewWebhook() *Webhook {
-	return &Webhook{
-		routes:     make(map[string]EventReceiver),
-		middleware: make(map[string]HandlerFunc),
+	protocol, _ := NewHTTP()
+	router := chi.NewRouter()
+
+	// create the webhook for the give protocol
+	webhook := &Webhook{
+		router:   router,
+		protocol: protocol,
 	}
+
+	// register the middlewares
+	webhook.router.Use(webhook.logger)
+
+	return webhook
 }
 
-// Route registers receiver for given topic
-func (h *Webhook) Route(topic string, receiver EventReceiver) {
-	// Interceptor represents an http interceptor
-	type Interceptor interface {
-		// Middleware represents a middleware
-		Intercept(http.Handler) http.Handler
+// Mount mounts the receiver to a given path
+func (h *Webhook) Mount(pattern string, receiver EventReceiver) {
+	handler, _ := NewHTTPReceiveHandler(
+		context.Background(), h.protocol, h.wrap(receiver))
+
+	// Route represents a given route
+	type Route interface {
+		Use(chi.Router)
 	}
 
-	h.routes[topic] = receiver
-
-	if endpoint, ok := receiver.(Interceptor); ok {
-		h.middleware[topic] = endpoint.Intercept
-	}
-}
-
-// Mount mounts the event handler to a given router
-func (h *Webhook) Mount(r *plex.Server) {
-	ctx := context.Background()
-
-	protocol, err := NewHTTP()
-	if err != nil {
-		panic(err)
-	}
-
-	handler, err := NewHTTPReceiveHandler(ctx, protocol, h.receive)
-	if err != nil {
-		panic(err)
-	}
-
-	router := r.Proxy.Router()
-
-	router.Route("/internal/topics/{topic}", func(route chi.Router) {
-		route.Use(h.logger)
-		route.Use(h.trailer)
-		route.Mount("/", handler)
+	h.router.Group(func(r chi.Router) {
+		if route, ok := receiver.(Route); ok {
+			// use the route if needed
+			route.Use(r)
+		}
+		// mount the handler to the router
+		r.Mount(pattern, handler)
 	})
 }
 
 func (h *Webhook) logger(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
 		if logger, err := zap.NewProduction(); err == nil {
-			r = r.WithContext(
-				WithLogger(r.Context(), logger.Named("cloud").Sugar()),
-			)
-		}
-		next.ServeHTTP(w, r)
-	}
-
-	return http.HandlerFunc(fn)
-}
-
-func (h *Webhook) trailer(next http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		topic := chi.URLParam(r, "topic")
-
-		if middleare, ok := h.middleware[topic]; ok {
-			next = middleare(next)
+			logger = logger.Named("cloud")
+			// owerwire the context
+			ctx = WithLogger(ctx, logger.Sugar())
+			// overwrite the request
+			r = r.WithContext(ctx)
 		}
 
 		next.ServeHTTP(w, r)
@@ -108,57 +88,47 @@ func (h *Webhook) trailer(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func (h *Webhook) receive(ctx context.Context, eventArgs Event) Result {
-	topic := chi.URLParamFromCtx(ctx, "topic")
+func (h *Webhook) wrap(receiver EventReceiver) EventReceiver {
+	fn := func(ctx context.Context, event Event) Result {
+		// enrich the logger
+		logger := log.GetContext(ctx).WithFields(log.Map{
+			"incoming_event_id":                event.ID(),
+			"incoming_event_type":              event.Type(),
+			"incoming_event_source":            event.Source(),
+			"incoming_event_subject":           event.Subject(),
+			"incoming_event_data_schema":       event.DataSchema(),
+			"incoming_event_data_content_type": event.DataContentType(),
+		})
 
-	// enrich the logger
-	logger := log.GetContext(ctx).WithFields(log.Map{
-		"incoming_event_id":                eventArgs.ID(),
-		"incoming_event_type":              eventArgs.Type(),
-		"incoming_event_source":            eventArgs.Source(),
-		"incoming_event_source_topic":      topic,
-		"incoming_event_subject":           eventArgs.Subject(),
-		"incoming_event_data_schema":       eventArgs.DataSchema(),
-		"incoming_event_data_content_type": eventArgs.DataContentType(),
-	})
+		// overwrite the context
+		ctx = log.SetContext(ctx, logger)
+		// overwrite the context
+		ctx = h.metadata(ctx, event)
 
-	// find the handler for given topic
-	handler, ok := h.routes[topic]
-	if !ok {
-		err := status.Errorf(codes.NotFound, "receiver %s not found", topic)
-		// log the error
-		logger.WithError(err).Error("receiver does not exist")
-		// stop eht execution
-		return err
+		// execute the receiver
+		if err := receiver.Receive(ctx, event); err != nil {
+			logger.WithError(err).Error("receiver failure")
+			return err
+		}
+
+		return nil
 	}
 
-	// overwrite the logger
-	ctx = log.SetContext(ctx, logger)
-	// enrich the context with extensions
-	ctx = h.metadata(ctx, eventArgs)
-
-	// execute the receiver
-	if err := handler.Receive(ctx, eventArgs); err != nil {
-		logger.WithError(err).Error("receiver failure")
-		// stop eht execution
-		return err
-	}
-
-	return nil
+	return EventReceiverFunc(fn)
 }
 
-func (h *Webhook) metadata(ctx context.Context, eventArgs Event) context.Context {
-	kv := metadata.New(make(map[string]string))
+func (h *Webhook) metadata(ctx context.Context, event Event) context.Context {
+	header := metadata.New(make(map[string]string))
 
-	for k, v := range eventArgs.Extensions() {
+	for k, v := range event.Extensions() {
 		var (
-			key   = fmt.Sprintf("x-%v", k)
+			name  = fmt.Sprintf("x-%v", k)
 			value = fmt.Sprintf("%v", v)
 		)
 
 		// append the pair
-		kv.Append(key, value)
+		header.Append(name, value)
 	}
 
-	return metadata.NewIncomingContext(ctx, kv)
+	return metadata.NewIncomingContext(ctx, header)
 }

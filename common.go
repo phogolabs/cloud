@@ -14,6 +14,9 @@ type (
 
 	// Result represents the result
 	Result = v2.Result
+
+	// HTTPProtocol represents the HTTP protocol
+	HTTPProtocol = v2.HTTPProtocol
 )
 
 var (

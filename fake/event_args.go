@@ -28,6 +28,16 @@ type FakeEventArgs struct {
 	dataSchemaReturnsOnCall map[int]struct {
 		result1 string
 	}
+	ExtensionsStub        func() map[string]interface{}
+	extensionsMutex       sync.RWMutex
+	extensionsArgsForCall []struct {
+	}
+	extensionsReturns struct {
+		result1 map[string]interface{}
+	}
+	extensionsReturnsOnCall map[int]struct {
+		result1 map[string]interface{}
+	}
 	SourceStub        func() string
 	sourceMutex       sync.RWMutex
 	sourceArgsForCall []struct {
@@ -163,6 +173,58 @@ func (fake *FakeEventArgs) DataSchemaReturnsOnCall(i int, result1 string) {
 	}
 	fake.dataSchemaReturnsOnCall[i] = struct {
 		result1 string
+	}{result1}
+}
+
+func (fake *FakeEventArgs) Extensions() map[string]interface{} {
+	fake.extensionsMutex.Lock()
+	ret, specificReturn := fake.extensionsReturnsOnCall[len(fake.extensionsArgsForCall)]
+	fake.extensionsArgsForCall = append(fake.extensionsArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Extensions", []interface{}{})
+	fake.extensionsMutex.Unlock()
+	if fake.ExtensionsStub != nil {
+		return fake.ExtensionsStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.extensionsReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeEventArgs) ExtensionsCallCount() int {
+	fake.extensionsMutex.RLock()
+	defer fake.extensionsMutex.RUnlock()
+	return len(fake.extensionsArgsForCall)
+}
+
+func (fake *FakeEventArgs) ExtensionsCalls(stub func() map[string]interface{}) {
+	fake.extensionsMutex.Lock()
+	defer fake.extensionsMutex.Unlock()
+	fake.ExtensionsStub = stub
+}
+
+func (fake *FakeEventArgs) ExtensionsReturns(result1 map[string]interface{}) {
+	fake.extensionsMutex.Lock()
+	defer fake.extensionsMutex.Unlock()
+	fake.ExtensionsStub = nil
+	fake.extensionsReturns = struct {
+		result1 map[string]interface{}
+	}{result1}
+}
+
+func (fake *FakeEventArgs) ExtensionsReturnsOnCall(i int, result1 map[string]interface{}) {
+	fake.extensionsMutex.Lock()
+	defer fake.extensionsMutex.Unlock()
+	fake.ExtensionsStub = nil
+	if fake.extensionsReturnsOnCall == nil {
+		fake.extensionsReturnsOnCall = make(map[int]struct {
+			result1 map[string]interface{}
+		})
+	}
+	fake.extensionsReturnsOnCall[i] = struct {
+		result1 map[string]interface{}
 	}{result1}
 }
 
@@ -329,6 +391,8 @@ func (fake *FakeEventArgs) Invocations() map[string][][]interface{} {
 	defer fake.dataContentTypeMutex.RUnlock()
 	fake.dataSchemaMutex.RLock()
 	defer fake.dataSchemaMutex.RUnlock()
+	fake.extensionsMutex.RLock()
+	defer fake.extensionsMutex.RUnlock()
 	fake.sourceMutex.RLock()
 	defer fake.sourceMutex.RUnlock()
 	fake.subjectMutex.RLock()
