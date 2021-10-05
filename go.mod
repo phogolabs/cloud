@@ -11,6 +11,7 @@ require (
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/googleapis/google-cloudevents-go v0.1.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/phogolabs/flaw v0.0.0-20210430130223-f948049b189e // indirect

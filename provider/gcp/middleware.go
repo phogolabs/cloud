@@ -5,25 +5,16 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/googleapis/google-cloudevents-go/cloud/pubsub/v1"
+	"github.com/phogolabs/schema"
 )
 
-// Decoder represents the Pub/Sub decoder
-func Decoder(next http.Handler) http.Handler {
-	// Message represents the message
-	type Message struct {
-		Attributes map[string]string `json:"attributes" validate:"required"`
-		Data       []byte            `json:"data"`
-	}
-
-	// Payload represents the request payload
-	type Payload struct {
-		Message *Message `json:"message" validate:"required"`
-	}
-
+// PubsubDecoder represents the Pubsub decoder
+func PubsubDecoder(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		payload := &Payload{}
+		payload := &pubsub.MessagePublishedData{}
 
 		if err := json.NewDecoder(r.Body).Decode(payload); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -33,19 +24,79 @@ func Decoder(next http.Handler) http.Handler {
 		// close the body
 		r.Body.Close()
 
-		if err := validator.New().StructCtx(r.Context(), payload); err != nil {
+		header := http.Header{}
+		// prepare the headers
+		for key, value := range payload.Message.Attributes {
+			header.Set(key, value)
+		}
+
+		message := NewMessage(header, io.NopCloser(
+			bytes.NewBuffer(payload.Message.Data),
+		))
+		// write the message into the request
+		if err := WriteRequest(r.Context(), message, r); err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
 
-		// prepare the headers
-		for key, value := range payload.Message.Attributes {
-			r.Header.Set(key, value)
-		}
-		// prepare the body
-		r.Body = io.NopCloser(bytes.NewBuffer(payload.Message.Data))
-
 		next.ServeHTTP(w, r)
+	}
+
+	return http.HandlerFunc(fn)
+}
+
+// DecodeStorage represents the Storage decoder
+func StorageDecoder(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		payload := &pubsub.MessagePublishedData{}
+
+		if err := json.NewDecoder(r.Body).Decode(payload); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// close the body
+		r.Body.Close()
+
+		var (
+			eventType = payload.Message.Attributes["eventType"]
+			bucketID  = payload.Message.Attributes["bucketId"]
+			objectID  = payload.Message.Attributes["objectId"]
+		)
+
+		event := NewEvent()
+		event.SetID(schema.NewUUID().String())
+		event.SetTime(time.Now())
+		event.SetSubject(bucketID + "/" + objectID)
+		event.SetSource("https://" + bucketID)
+		event.SetDataSchema("google.storage.object")
+		event.SetDataContentType("application/json")
+
+		switch eventType {
+		case "OBJECT_FINALIZE":
+			event.SetType("google.storage.object.finalize")
+		case "OBJECT_ARCHIVE":
+			event.SetType("google.storage.object.archive")
+		case "OBJECT_DELETE":
+			event.SetType("google.storage.object.delete")
+		case "OBJECT_METADATA_UPDATE":
+			event.SetType("google.storage.object.metadataUpdate")
+		}
+
+		// copy the actual data
+		event.DataEncoded = payload.Message.Data
+
+		if err := event.Validate(); err != nil {
+			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+			return
+		}
+
+		message := ToMessage(&event)
+		// write the context
+		if err := WriteRequest(r.Context(), message, r); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	return http.HandlerFunc(fn)
