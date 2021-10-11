@@ -85,13 +85,13 @@ func Decoder(kind PayloadType) func(http.Handler) http.Handler {
 
 				switch eventType {
 				case "OBJECT_FINALIZE":
-					event.SetType("google.storage.object.finalize")
+					event.SetType("google.storage.object.finalized")
 				case "OBJECT_ARCHIVE":
-					event.SetType("google.storage.object.archive")
+					event.SetType("google.storage.object.archived")
 				case "OBJECT_DELETE":
-					event.SetType("google.storage.object.delete")
+					event.SetType("google.storage.object.deleted")
 				case "OBJECT_METADATA_UPDATE":
-					event.SetType("google.storage.object.metadataUpdate")
+					event.SetType("google.storage.object.metadata.updated")
 				}
 
 				// copy the actual data
