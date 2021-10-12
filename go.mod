@@ -5,6 +5,8 @@ go 1.16
 require (
 	cloud.google.com/go v0.97.0 // indirect
 	cloud.google.com/go/pubsub v1.17.0 // indirect
+	github.com/AlekSi/pointer v1.1.0
+	github.com/bxcodec/faker/v3 v3.6.0
 	github.com/cloudevents/sdk-go/protocol/pubsub/v2 v2.5.0
 	github.com/cloudevents/sdk-go/v2 v2.5.0
 	github.com/creasty/defaults v1.5.2 // indirect
@@ -25,6 +27,6 @@ require (
 	golang.org/x/sys v0.0.0-20211007075335-d3039528d8ac // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/api v0.58.0 // indirect
-	google.golang.org/genproto v0.0.0-20211011165927-a5fb3255271e // indirect
+	google.golang.org/genproto v0.0.0-20211012143446-e1d23e1da178 // indirect
 	google.golang.org/grpc v1.41.0
 )

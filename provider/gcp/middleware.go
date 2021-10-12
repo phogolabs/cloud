@@ -5,10 +5,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/googleapis/google-cloudevents-go/cloud/pubsub/v1"
-	"github.com/phogolabs/schema"
+	"github.com/googleapis/google-cloudevents-go/cloud/storage/v1"
 )
 
 type PayloadType byte
@@ -48,7 +47,7 @@ func Decoder(kind PayloadType) func(http.Handler) http.Handler {
 					bytes.NewBuffer(payload.Message.Data),
 				))
 				// write the message into the request
-				if err := WriteRequest(r.Context(), message, r); err != nil {
+				if err := MessageWriteRequest(r.Context(), message, r); err != nil {
 					http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 					return
 				}
@@ -69,42 +68,22 @@ func Decoder(kind PayloadType) func(http.Handler) http.Handler {
 				// close the body
 				r.Body.Close()
 
-				var (
-					eventType = payload.Message.Attributes["eventType"]
-					bucketID  = payload.Message.Attributes["bucketId"]
-					objectID  = payload.Message.Attributes["objectId"]
-				)
-
-				event := NewEvent()
-				event.SetID(schema.NewUUID().String())
-				event.SetTime(time.Now())
-				event.SetSubject(bucketID + "/" + objectID)
-				event.SetSource("https://" + bucketID)
-				event.SetDataSchema("google.storage.object")
-				event.SetDataContentType("application/json")
-
-				switch eventType {
-				case "OBJECT_FINALIZE":
-					event.SetType("google.storage.object.finalized")
-				case "OBJECT_ARCHIVE":
-					event.SetType("google.storage.object.archived")
-				case "OBJECT_DELETE":
-					event.SetType("google.storage.object.deleted")
-				case "OBJECT_METADATA_UPDATE":
-					event.SetType("google.storage.object.metadata.updated")
+				data := &storage.StorageObjectData{}
+				// decode the data
+				if err := json.Unmarshal(payload.Message.Data, data); err != nil {
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
 				}
 
-				// copy the actual data
-				event.DataEncoded = payload.Message.Data
-
-				if err := event.Validate(); err != nil {
+				event, err := NewStorageEvent(payload.Message.Attributes["eventType"], data)
+				if err != nil {
 					http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 					return
 				}
 
-				message := ToMessage(&event)
+				message := MessageFromEvent(event)
 				// write the context
-				if err := WriteRequest(r.Context(), message, r); err != nil {
+				if err := MessageWriteRequest(r.Context(), message, r); err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
