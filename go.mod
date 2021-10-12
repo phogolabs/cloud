@@ -13,6 +13,7 @@ require (
 	github.com/googleapis/google-cloudevents-go v0.1.1
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/onsi/gomega v1.16.0
 	github.com/phogolabs/flaw v0.0.0-20210430130223-f948049b189e // indirect
 	github.com/phogolabs/log v0.0.0-20210430125128-bb23cd1dfac5
 	github.com/phogolabs/schema v0.0.0-20210729142605-87b2d5d49e73

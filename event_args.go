@@ -38,21 +38,21 @@ type EventArgsDispatcher interface {
 	Dispatch(context.Context, EventArgs) error
 }
 
-var _ EventArgsDispatcher = &EventDispatcher{}
+var _ EventArgsDispatcher = &EventArgsAdapter{}
 
-// EventDispatcher represents an event dispatcher
-type EventDispatcher struct {
+// EventArgsAdapter represents an event dispatcher
+type EventArgsAdapter struct {
 	// EventSender sends the actual event
 	EventSender EventSender
 }
 
 // Dispatch dispatches a given event
-func (d *EventDispatcher) Dispatch(ctx context.Context, args EventArgs) error {
+func (d *EventArgsAdapter) Dispatch(ctx context.Context, args EventArgs) error {
 	logger := log.GetContext(ctx)
 
 	logger.Infof("create an outbound event")
 	// create the event
-	event, err := NewEventArgs(args)
+	event, err := NewEventWith(args)
 	if err != nil {
 		logger.WithError(err).Errorf("create an outbound event failure")
 		return err
@@ -78,8 +78,8 @@ func (d *EventDispatcher) Dispatch(ctx context.Context, args EventArgs) error {
 	return nil
 }
 
-// NewEventArgs creates a new event args
-func NewEventArgs(args EventArgs) (*Event, error) {
+// NewEventWith creates a new event for the provided args.
+func NewEventWith(args EventArgs) (*Event, error) {
 	event := NewEvent()
 	event.SetType(args.Type())
 	event.SetID(schema.NewUUID().String())

@@ -70,6 +70,12 @@ func (h *Webhook) Mount(pattern string, receiver EventReceiver) {
 	})
 }
 
+// Mount mounts the receiver to a given path
+func (h *Webhook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// delegate the handling to the router
+	h.router.ServeHTTP(w, r)
+}
+
 func (h *Webhook) logger(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
