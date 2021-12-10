@@ -99,3 +99,19 @@ func NewEventWith(args EventArgs) (*Event, error) {
 
 	return &event, nil
 }
+
+var _ EventArgsDispatcher = &EventArgsComposer{}
+
+// EventArgsCompoer represents an event dispatcher
+type EventArgsComposer []EventArgsDispatcher
+
+// Dispatch dispatches a given event
+func (collection EventArgsComposer) Dispatch(ctx context.Context, args EventArgs) error {
+	for _, dispatcher := range collection {
+		if err := dispatcher.Dispatch(ctx, args); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
