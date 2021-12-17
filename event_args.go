@@ -115,3 +115,16 @@ func (collection EventArgsComposer) Dispatch(ctx context.Context, args EventArgs
 
 	return nil
 }
+
+// EventArgsReceiver represents a receiver
+type EventArgsReceiver interface {
+	Receive(ctx context.Context, eventArgs EventArgs) Result
+}
+
+// EventArgsReceiverFunc represents a receiver func
+type EventArgsReceiverFunc func(context.Context, EventArgs) Result
+
+// Receive receives the event args
+func (fn EventArgsReceiverFunc) Receive(ctx context.Context, eventArgs EventArgs) Result {
+	return fn(ctx, eventArgs)
+}
